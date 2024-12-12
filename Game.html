@@ -79,6 +79,8 @@
         let dealerHand = [];
         let playerScore = 0;
         let dealerScore = 0;
+        let lastPlayerCard = null;
+        let lastDealerCard = null;
         
         function newGame() {
             shuffleDeck();
@@ -86,6 +88,8 @@
             dealerHand = [];
             playerScore = 0;
             dealerScore = 0;
+            lastPlayerCard = null;
+            lastDealerCard = null;
             updateUI();
         }
         
@@ -99,7 +103,8 @@
         
         function hit() {
             if (playerScore >= 21) return;
-            playerHand.push(dealCard());
+            lastPlayerCard = dealCard();
+            playerHand.push(lastPlayerCard);
             playerScore = calculateScore(playerHand);
             updateUI();
             checkForBust();
@@ -107,7 +112,8 @@
         
         function stand() {
             while (dealerScore < 17 && dealerScore <= playerScore) {
-                dealerHand.push(dealCard());
+                lastDealerCard = dealCard();
+                dealerHand.push(lastDealerCard);
                 dealerScore = calculateScore(dealerHand);
                 updateUI();
             }
@@ -116,25 +122,35 @@
         
         function checkForBust() {
             if (playerScore > 21) {
-                alert('Перебор! Вы проиграли.');
+                showResult("Проигрыш!", "У вас перебор.");
                 newGame();
             }
         }
         
         function checkWinner() {
             if (dealerScore > 21) {
-                alert('Дилер перебрал! Вы выиграли.');
+                showResult("Победа!", "Дилер перебрал.");
                 newGame();
             } else if (dealerScore === playerScore) {
-                alert('Ничья!');
+                showResult("Ничья!", "Очки равны.");
                 newGame();
             } else if (dealerScore > playerScore) {
-                alert('Вы проиграли.');
+                showResult("Проигрыш!", "У дилера больше очков.");
                 newGame();
             } else {
-                alert('Вы выиграли!');
+                showResult("Победа!", "У вас больше очков.");
                 newGame();
             }
+        }
+        
+        function showResult(resultText, message) {
+            let resultMessage = `
+                Результат: ${resultText}
+                Сообщение: ${message}
+                Ваши последние карты: ${lastPlayerCard ? `${lastPlayerCard.value}${lastPlayerCard.suit}` : ''}
+                Карты дилера: ${lastDealerCard ? `${lastDealerCard.value}${lastDealerCard.suit}` : ''}
+            `;
+            alert(resultMessage);
         }
         
         function shuffleDeck() {
