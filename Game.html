@@ -111,7 +111,7 @@
                 dealerScore = calculateScore(dealerHand);
                 updateUI();
             }
-            checkWinner();
+            setTimeout(checkWinner, 2000); // Задержка перед проверкой победителя
         }
         
         function checkForBust() {
