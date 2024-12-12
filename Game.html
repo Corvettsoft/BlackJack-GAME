@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Блэкджек</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .card {
+            display: inline-block;
+            width: 100px;
+            height: 150px;
+            margin: 10px;
+            background-color: white;
+            border: 1px solid black;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Блэкджек</h1>
+    
+    <div id="dealer-hand"></div>
+    <p id="dealer-score">Дилер: 0</p>
+    
+    <div id="player-hand"></div>
+    <p id="player-score">Игрок: 0</p>
+    
+    <button onclick="hit()">Взять карту</button>
+    <button onclick="stand()">Пропустить ход</button>
+    <button onclick="newGame()">Новая игра</button>
+    
+    <script>
+        // Массив карт
+        const deck = [
+            { value: 'A', suit: '♥️' }, { value: '2', suit: '♥️' },
+            { value: '3', suit: '♥️' }, { value: '4', suit: '♥️' },
+            { value: '5', suit: '♥️' }, { value: '6', suit: '♥️' },
+            { value: '7', suit: '♥️' }, { value: '8', suit: '♥️' },
+            { value: '9', suit: '♥️' }, { value: '10', suit: '♥️' },
+            { value: 'J', suit: '♥️' }, { value: 'Q', suit: '♥️' },
+            { value: 'K', suit: '♥️' },
+            
+            { value: 'A', suit: '♦️' }, { value: '2', suit: '♦️' },
+            { value: '3', suit: '♦️' }, { value: '4', suit: '♦️' },
+            { value: '5', suit: '♦️' }, { value: '6', suit: '♦️' },
+            { value: '7', suit: '♦️' }, { value: '8', suit: '♦️' },
+            { value: '9', suit: '♦️' }, { value: '10', suit: '♦️' },
+            { value: 'J', suit: '♦️' }, { value: 'Q', suit: '♦️' },
+            { value: 'K', suit: '♦️' },
+            
+            { value: 'A', suit: '♣️' }, { value: '2', suit: '♣️' },
+            { value: '3', suit: '♣️' }, { value: '4', suit: '♣️' },
+            { value: '5', suit: '♣️' }, { value: '6', suit: '♣️' },
+            { value: '7', suit: '♣️' }, { value: '8', suit: '♣️' },
+            { value: '9', suit: '♣️' }, { value: '10', suit: '♣️' },
+            { value: 'J', suit: '♣️' }, { value: 'Q', suit: '♣️' },
+            { value: 'K', suit: '♣️' },
+            
+            { value: 'A', suit: '♠️' }, { value: '2', suit: '♠️' },
+            { value: '3', suit: '♠️' }, { value: '4', suit: '♠️' },
+            { value: '5', suit: '♠️' }, { value: '6', suit: '♠️' },
+            { value: '7', suit: '♠️' }, { value: '8', suit: '♠️' },
+            { value: '9', suit: '♠️' }, { value: '10', suit: '♠️' },
+            { value: 'J', suit: '♠️' }, { value: 'Q', suit: '♠️' },
+            { value: 'K', suit: '♠️' }
+        ];
+        
+        let playerHand = [];
+        let dealerHand = [];
+        let playerScore = 0;
+        let dealerScore = 0;
+        
+        function newGame() {
+            shuffleDeck();
+            playerHand = dealCards(2);
+            dealerHand = dealCards(2);
+            updateUI();
+        }
+        
+        function hit() {
+            if (playerScore >= 21) return;
+            playerHand.push(dealCard());
+            playerScore = calculateScore(playerHand);
+            updateUI();
+            checkForBust();
+        }
+        
+        function stand() {
+            while (dealerScore < 17 && dealerScore <= playerScore) {
+                dealerHand.push(dealCard());
+                dealerScore = calculateScore(dealerHand);
+                updateUI();
+            }
+            checkWinner();
+        }
+        
+        function checkForBust() {
+            if (playerScore > 21) {
+                alert('Перебор! Вы проиграли.');
+                newGame();
+            }
+        }
+        
+        function checkWinner() {
+            if (dealerScore > 21) {
+                alert('Дилер перебрал! Вы выиграли.');
+                newGame();
+            } else if (dealerScore === playerScore) {
+                alert('Ничья!');
+                newGame();
+            } else if (dealerScore > playerScore) {
+                alert('Вы проиграли.');
+                newGame();
+            } else {
+                alert('Вы выиграли!');
+                newGame();
+            }
+        }
+        
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+        
+        function dealCard() {
+            return deck.pop();
+        }
+        
+        function dealCards(num) {
+            const cards = [];
+            for (let i = 0; i < num; i++) {
+                cards.push(dealCard());
+            }
+            return cards;
+        }
+        
+        function calculateScore(hand) {
+            let score = 0;
+            let aces = 0;
+            hand.forEach(card => {
+                switch (card.value) {
+                    case 'A':
+                        score += 11;
+                        aces++;
+                        break;
+                    case 'J': case 'Q': case 'K':
+                        score += 10;
+                        break;
+                    default:
+                        score += parseInt(card.value);
+                }
+            });
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            return score;
+        }
+        
+        function updateUI() {
+            document.getElementById('dealer-hand').innerHTML = '';
+            document.getElementById('player-hand').innerHTML = '';
+            dealerHand.forEach(card => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.textContent = `${card.value}${card.suit}`;
+                document.getElementById('dealer-hand').appendChild(div);
+            });
+            playerHand.forEach(card => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.textContent = `${card.value}${card.suit}`;
+                document.getElementById('player-hand').appendChild(div);
+            });
+            document.getElementById('dealer-score').textContent = `Дилер: ${dealerScore}`;
+            document.getElementById('player-score').textContent = `Игрок: ${playerScore}`;
+        }
+        
+        newGame(); // Начинаем новую игру при загрузке страницы
+    </script>
+</body>
+</html>
