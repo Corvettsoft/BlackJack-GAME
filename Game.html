@@ -34,6 +34,7 @@
     <div id="player-hand"></div>
     <p id="player-score">Игрок: 0</p>
     
+    <button onclick="dealInitialCards()">Начать игру</button>
     <button onclick="hit()">Взять карту</button>
     <button onclick="stand()">Пропустить ход</button>
     <button onclick="newGame()">Новая игра</button>
@@ -81,8 +82,18 @@
         
         function newGame() {
             shuffleDeck();
+            playerHand = [];
+            dealerHand = [];
+            playerScore = 0;
+            dealerScore = 0;
+            updateUI();
+        }
+        
+        function dealInitialCards() {
             playerHand = dealCards(2);
             dealerHand = dealCards(2);
+            playerScore = calculateScore(playerHand);
+            dealerScore = calculateScore(dealerHand);
             updateUI();
         }
         
